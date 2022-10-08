@@ -1,19 +1,8 @@
-locals {
-    service_projects = [
-        "rteller-demo-svc-aaaa",
-        "rteller-demo-svc-bbbb",
-        "rteller-demo-svc-cccc",
+module "service-project-attach" {
+  source  = "r-teller/service-project-attach/google"
+  version = "~>0.1.0"
 
-    ]
+  host_project_id    = var.host_project_id
+  service_project_id = var.service_project_id
 }
 
-
-module "firewall_rules" { 
-    source  = "r-teller/service-project-attach/google"
-
-    project_id      = var.project_id
-    network         = var.network
-
-    for_each        = { for rule in local.firewall_rules:  "${rule.fileName}--${rule.id}" => rule }
-    firewall_rule  = each.value
-}
