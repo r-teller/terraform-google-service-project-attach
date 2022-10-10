@@ -33,6 +33,11 @@ locals {
         "serviceAccount:${local.compute_default_service_account}"
       ]
     },
+    "appengine.googleapis.com" = { #<-- Required for App Engine API
+      "roles/compute.networkUser" = [
+        "serviceAccount:service-${data.google_project.service_project.number}@ae-api-prod.google.com.iam.gserviceaccount.com",
+      ]
+    },
     "cloudfunctions.googleapis.com" = { #<-- Required for Cloud Functions API
       "roles/vpcaccess.user" = [
         "serviceAccount:service-${data.google_project.service_project.number}@gcf-admin-robot.iam.gserviceaccount.com",
@@ -61,9 +66,14 @@ locals {
         "serviceAccount:service-${data.google_project.service_project.number}@dataflow-service-producer-prod.iam.gserviceaccount.com",
       ]
     },
-    "vpcaccess.googleapis.com" = { #<-- Required for VPC-Access API
+    "vpcaccess.googleapis.com" = { #<-- Required for Serverless VPC-Access API
       "roles/compute.networkUser" = [
         "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-vpcaccess.iam.gserviceaccount.com",
+      ]
+    },
+    "notebooks.googleapis.com" = { #<-- Required for Vertex AI API
+      "roles/compute.networkUser" = [
+        "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-notebooks.iam.gserviceaccount.com",
       ]
     },
   }
