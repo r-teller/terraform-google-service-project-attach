@@ -57,8 +57,6 @@ All products listed below should be supported by this terraform module and autom
 - Cloud Run:
   - https://cloud.google.com/run/docs/configuring/shared-vpc-host-project#provide_access_to_the_connector
   - https://cloud.google.com/run/docs/configuring/shared-vpc-service-projects#grant-permissions
-- App Engine
-  - https://cloud.google.com/appengine/docs/flexible/using-shared-vpc#setting_up_permissions
 - Serverless VPC Access (This is a duplciate entry for Cloud Function/Run snippets above)
   - https://cloud.google.com/vpc/docs/configure-serverless-vpc-access#service_account_permissions
 - Dataproc:
