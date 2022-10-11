@@ -65,4 +65,6 @@ All products listed below should be supported by this terraform module and autom
   - https://cloud.google.com/dataflow/docs/guides/specifying-networks#shared
 - Vertex AI:
   - https://cloud.google.com/vertex-ai/docs/workbench/user-managed/service-perimeter#shared-vpc
+- Cloud TPU:
+  - https://cloud.google.com/tpu/docs/shared-vpc-networks
   

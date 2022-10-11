@@ -43,6 +43,11 @@ locals {
         "serviceAccount:${data.google_project.service_project.number}@serverless-robot-prod.iam.gserviceaccount.com",
       ],
     },
+    "tpu.googleapis.com" = { #<-- Required for Cloud TPU API
+      "roles/tpu.xpnAgent" = [
+        "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-tpu.iam.gserviceaccount.com",
+      ],
+    },
     "composer.googleapis.com" = { #<-- Required for Cloud Composer API
       "roles/compute.networkAdmin" = [
         "serviceAccount:service-${data.google_project.service_project.number}@cloudcomposer-accounts.iam.gserviceaccount.com",
