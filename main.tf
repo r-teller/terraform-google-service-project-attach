@@ -8,7 +8,7 @@ data "google_compute_default_service_account" "compute_default_service_account" 
 
 data "google_iam_testable_permissions" "cloudresourcemanager" {
   full_resource_name = "//cloudresourcemanager.googleapis.com/projects/${var.service_project_id}"
-  stages             = ["GA"]
+  stages             = ["GA", "BETA"]
 }
 
 
@@ -76,6 +76,11 @@ locals {
         "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-notebooks.iam.gserviceaccount.com",
       ]
     },
+    "workstations.googleapis.com" = {
+      "roles/workstations.networkAdmin" = [
+        "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-workstations.iam.gserviceaccount.com"
+      ],
+    }
   }
 
   iam_role_mappings = flatten([

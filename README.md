@@ -57,7 +57,7 @@ All products listed below should be supported by this terraform module and autom
 - Cloud Run:
   - https://cloud.google.com/run/docs/configuring/shared-vpc-host-project#provide_access_to_the_connector
   - https://cloud.google.com/run/docs/configuring/shared-vpc-service-projects#grant-permissions
-- Serverless VPC Access (This is a duplciate entry for Cloud Function/Run snippets above)
+- Serverless VPC Access: (This is a duplciate entry for Cloud Function/Run snippets above)
   - https://cloud.google.com/vpc/docs/configure-serverless-vpc-access#service_account_permissions
 - Dataproc:
   - https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/network#create_a_cluster_that_uses_a_network_in_another_project
@@ -67,4 +67,6 @@ All products listed below should be supported by this terraform module and autom
   - https://cloud.google.com/vertex-ai/docs/workbench/user-managed/service-perimeter#shared-vpc
 - Cloud TPU:
   - https://cloud.google.com/tpu/docs/shared-vpc-networks
+- Cloud Workstations: (Not Documented yet)
+  - https://cloud.google.com/workstations/docs/architecture
   
