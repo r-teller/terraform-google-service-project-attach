@@ -40,7 +40,7 @@ locals {
     },
     "run.googleapis.com" = { #<-- Required for Cloud Run Admin API
       "roles/vpcaccess.user" = [
-        "serviceAccount:${data.google_project.service_project.number}@serverless-robot-prod.iam.gserviceaccount.com",
+        "serviceAccount:service-${data.google_project.service_project.number}@serverless-robot-prod.iam.gserviceaccount.com",
       ],
     },
     "tpu.googleapis.com" = { #<-- Required for Cloud TPU API
