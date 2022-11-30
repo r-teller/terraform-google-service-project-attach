@@ -63,6 +63,8 @@ All products listed below should be supported by this terraform module and autom
   - https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/network#create_a_cluster_that_uses_a_network_in_another_project
 - Dataflow:
   - https://cloud.google.com/dataflow/docs/guides/specifying-networks#shared
+- Data Fusion:
+  - https://cloud.google.com/data-fusion/docs/how-to/create-private-ip#set_up_iam_permissions  
 - Vertex AI:
   - https://cloud.google.com/vertex-ai/docs/workbench/user-managed/service-perimeter#shared-vpc
 - Cloud TPU:

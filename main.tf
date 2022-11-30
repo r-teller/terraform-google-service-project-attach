@@ -66,6 +66,11 @@ locals {
         "serviceAccount:service-${data.google_project.service_project.number}@dataflow-service-producer-prod.iam.gserviceaccount.com",
       ]
     },
+    "datafusion.googleapis.com" = { #<-- Required for Data Fusion API
+      "roles/compute.networkUser" = [
+        "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-datafusion.iam.gserviceaccount.com",
+      ]
+    },    
     "vpcaccess.googleapis.com" = { #<-- Required for Serverless VPC-Access API
       "roles/compute.networkUser" = [
         "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-vpcaccess.iam.gserviceaccount.com",
