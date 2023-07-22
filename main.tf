@@ -11,7 +11,6 @@ data "google_iam_testable_permissions" "cloudresourcemanager" {
   stages             = ["GA", "BETA"]
 }
 
-
 locals {
   enabled_resources = distinct(flatten([for api in data.google_iam_testable_permissions.cloudresourcemanager.permissions : [
     "${split(".", api.name)[0]}"
@@ -27,6 +26,11 @@ locals {
       "roles/container.hostServiceAgentUser" = [
         "serviceAccount:service-${data.google_project.service_project.number}@container-engine-robot.iam.gserviceaccount.com",
       ]
+      "roles/compute.securityAdmin" = (var.grant_services_security_admin_role ?
+        [
+          "serviceAccount:service-${data.google_project.service_project.number}@container-engine-robot.iam.gserviceaccount.com",
+        ] : []
+      )
     },
     "compute.googleapis.com" = { #<-- Required for Compute Engine API
       "roles/compute.networkUser" = [
@@ -49,9 +53,11 @@ locals {
       ],
     },
     "composer.googleapis.com" = { #<-- Required for Cloud Composer API
-      "roles/compute.networkAdmin" = [
-        "serviceAccount:service-${data.google_project.service_project.number}@cloudcomposer-accounts.iam.gserviceaccount.com",
-      ],
+      "roles/compute.networkAdmin" = (var.grant_services_network_admin_role ?
+        [
+          "serviceAccount:service-${data.google_project.service_project.number}@cloudcomposer-accounts.iam.gserviceaccount.com",
+        ] : []
+      )
       "roles/composer.sharedVpcAgent" = [
         "serviceAccount:service-${data.google_project.service_project.number}@cloudcomposer-accounts.iam.gserviceaccount.com",
       ],
@@ -70,7 +76,14 @@ locals {
       "roles/compute.networkUser" = [
         "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-datafusion.iam.gserviceaccount.com",
       ]
-    },    
+    },
+    "datastream.googleapis.com" = { #<-- Required for Datastream API
+      "roles/compute.networkAdmin" = (var.grant_services_network_admin_role ?
+        [
+          "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-datastream.iam.gserviceaccount.com",
+        ] : []
+      )
+    },
     "vpcaccess.googleapis.com" = { #<-- Required for Serverless VPC-Access API
       "roles/compute.networkUser" = [
         "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-vpcaccess.iam.gserviceaccount.com",
@@ -81,12 +94,16 @@ locals {
         "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-notebooks.iam.gserviceaccount.com",
       ]
     },
-    "workstations.googleapis.com" = {
-      "roles/workstations.networkAdmin" = [
-        "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-workstations.iam.gserviceaccount.com"
-      ],
+    "workstations.googleapis.com" = { #<-- Required for Cloud Workstation API
+      "roles/workstations.networkAdmin" = (var.grant_services_network_admin_role ?
+        [
+          "serviceAccount:service-${data.google_project.service_project.number}@gcp-sa-workstations.iam.gserviceaccount.com",
+        ] : []
+      )
     }
   }
+
+  subnetwork_mappings = var.allowed_subnetworks != null ? { for subnetwork in var.allowed_subnetworks : subnetwork => regex("regions/(?P<region>[^/]*)/subnetworks/(?P<subnetwork>[^/]*)$", subnetwork) } : null
 
   iam_role_mappings = flatten([
     for service in keys(local.iam_role_list) : [
@@ -98,6 +115,11 @@ locals {
             role    = role
             member  = member
             key     = join("_", [role, member])
+            subnets = (
+              local.subnetwork_mappings != null
+              &&
+              role == "roles/compute.networkUser"
+            ) ? local.subnetwork_mappings : null
           }
         ] if contains(local.enabled_resources, split(".", service)[0])
       ]
@@ -110,16 +132,43 @@ resource "google_compute_shared_vpc_service_project" "service_project_attach" {
   service_project = var.service_project_id
 }
 
+
 resource "google_project_iam_member" "cloudservices" {
+  count   = local.subnetwork_mappings == null ? 1 : 0
   project = var.host_project_id
   role    = "roles/compute.networkUser"
   member  = "serviceAccount:${data.google_project.service_project.number}@cloudservices.gserviceaccount.com"
 }
 
+resource "google_compute_subnetwork_iam_member" "cloudservices" {
+  for_each = local.subnetwork_mappings != null ? local.subnetwork_mappings : {}
+
+  project = var.host_project_id
+
+  region     = each.value.region
+  subnetwork = each.value.subnetwork
+
+  role   = "roles/compute.networkUser"
+  member = "serviceAccount:${data.google_project.service_project.number}@cloudservices.gserviceaccount.com"
+}
+
 resource "google_project_iam_member" "iam_member" {
-  for_each = { for iam in local.iam_role_mappings : iam.key => iam }
+  for_each = { for iam in local.iam_role_mappings : iam.key => iam if iam.subnets == null }
 
   project = var.host_project_id
   role    = each.value.role
   member  = each.value.member
+}
+
+resource "google_compute_subnetwork_iam_member" "iam_member" {
+  for_each = merge([for iam in local.iam_role_mappings : { for subnet, attributes in iam.subnets : format("%s-%s", iam.key, subnet) => merge({ member = iam.member }, attributes) } if iam.subnets != null]...)
+
+
+  project = var.host_project_id
+
+  region     = each.value.region
+  subnetwork = each.value.subnetwork
+
+  role   = "roles/compute.networkUser"
+  member = each.value.member
 }
