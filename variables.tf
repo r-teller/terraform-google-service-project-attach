@@ -33,3 +33,15 @@ variable "allowed_subnetworks" {
   type        = list(string)
   default     = null
 }
+
+variable "additional_network_user_members" {
+  type    = list(string)
+  default = []
+
+  validation {
+    condition = alltrue([
+      for additional_network_user_member in var.additional_network_user_members : can(regex("^((serviceAccount:)|(user:)|(domain:)|(group:)).*$", additional_network_user_member))
+    ])
+    error_message = "Strings in var.additional_network_user_members must start with one of the following values [serviceAccount, user, domain or group]"
+  }
+}

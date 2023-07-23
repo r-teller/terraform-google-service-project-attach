@@ -133,6 +133,7 @@ resource "google_compute_shared_vpc_service_project" "service_project_attach" {
 }
 
 
+### Grants access at the project level to all subnetworks if allowed_subnetworks is null
 resource "google_project_iam_member" "cloudservices" {
   count   = local.subnetwork_mappings == null ? 1 : 0
   project = var.host_project_id
@@ -140,16 +141,11 @@ resource "google_project_iam_member" "cloudservices" {
   member  = "serviceAccount:${data.google_project.service_project.number}@cloudservices.gserviceaccount.com"
 }
 
-resource "google_compute_subnetwork_iam_member" "cloudservices" {
-  for_each = local.subnetwork_mappings != null ? local.subnetwork_mappings : {}
-
-  project = var.host_project_id
-
-  region     = each.value.region
-  subnetwork = each.value.subnetwork
-
-  role   = "roles/compute.networkUser"
-  member = "serviceAccount:${data.google_project.service_project.number}@cloudservices.gserviceaccount.com"
+resource "google_project_iam_member" "additional_network_user_members" {
+  for_each = { for additional_network_user_member in var.additional_network_user_members : additional_network_user_member => {} if var.allowed_subnetworks == null }
+  project  = var.host_project_id
+  role     = "roles/compute.networkUser"
+  member   = each.key
 }
 
 resource "google_project_iam_member" "iam_member" {
@@ -160,15 +156,33 @@ resource "google_project_iam_member" "iam_member" {
   member  = each.value.member
 }
 
+### Grants access at the subnetwork level based on the list of allowed_subnetworks
+resource "google_compute_subnetwork_iam_member" "cloudservices" {
+  for_each = local.subnetwork_mappings != null ? local.subnetwork_mappings : {}
+
+  project    = var.host_project_id
+  region     = each.value.region
+  subnetwork = each.value.subnetwork
+  role       = "roles/compute.networkUser"
+  member     = "serviceAccount:${data.google_project.service_project.number}@cloudservices.gserviceaccount.com"
+}
+
+resource "google_compute_subnetwork_iam_member" "additional_network_user_members" {
+  for_each = merge([for additional_network_user_member in var.additional_network_user_members : { for subnetwork, attributes in local.subnetwork_mappings : format("%s-%s", additional_network_user_member, subnetwork) => merge({ member = additional_network_user_member }, attributes) } if local.subnetwork_mappings != null]...)
+
+  project    = var.host_project_id
+  region     = each.value.region
+  subnetwork = each.value.subnetwork
+  role       = "roles/compute.networkUser"
+  member     = each.value.member
+}
+
 resource "google_compute_subnetwork_iam_member" "iam_member" {
   for_each = merge([for iam in local.iam_role_mappings : { for subnet, attributes in iam.subnets : format("%s-%s", iam.key, subnet) => merge({ member = iam.member }, attributes) } if iam.subnets != null]...)
 
-
-  project = var.host_project_id
-
+  project    = var.host_project_id
   region     = each.value.region
   subnetwork = each.value.subnetwork
-
-  role   = "roles/compute.networkUser"
-  member = each.value.member
+  role       = "roles/compute.networkUser"
+  member     = each.value.member
 }

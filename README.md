@@ -47,6 +47,9 @@ The allowed_subnetworks variable is used to determine if "roles/compute.networkU
 
 
 ## Elevated Permissions
+### Grant Additional Users compute.networkUser role
+This module supports providing compute.networkUser role to a list of users, serviceAccounts, groups or domains. If allowed_subnetworks is null these permissions are granted on the project level if allowed_subnetworks is not null permissions are granted on the subnetwork level
+
 ### Grant services compute.networkAdmin role
 Most services are granted "roles/compute.networkUser" but some services need elevated permissions to function properly, in the past this module automatically granted those services the required permissions. Going forward a new variable (grant_services_network_admin_role) will be included and for a short interim set to true, at some point this may be changed to false. I recommend updating modules that require elevated permissions to explicitly call out true to prevent unexpected outages.
 
