@@ -15,10 +15,12 @@ module "service_project_attach" {
   #   "https://www.googleapis.com/compute/v1/projects/example-project/regions/us-central1/subnetworks/second-subnetwork",
   # ]
   allowed_subnetworks = null
-  
+
   ## Grants role/compute.securityAdmin permission to services that can use it 
   grant_services_security_admin_role = true
 
   ## Grants role/compute.networkAdmin permission to services that can use it 
   grant_services_network_admin_role = true
+
+  additional_network_user_members = []
 }
