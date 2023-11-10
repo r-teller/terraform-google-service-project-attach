@@ -6,6 +6,9 @@ module "service_project_attach" {
   host_project_id    = var.host_project_id
   service_project_id = var.service_project_id
 
+  ## This variable if set to false will only grant IAM Permissions to the specified services projects and will not handle attaching the service project to the host project
+  # attach_service_project = false
+
   ## The allowed_subnetworks variable is used to determine if "roles/compute.networkUser" should be restricted to a specific set of subnets or all subnets
   # if allowed_subnetworks = null then "roles/compute.networkUser" will have access to all subnets
   # if allowed_subnetworks = [] then "roles/compute.networkUser" will have access to no subnets

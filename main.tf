@@ -128,6 +128,7 @@ locals {
 }
 
 resource "google_compute_shared_vpc_service_project" "service_project_attach" {
+  count           = var.attach_service_project ? 1 : 0
   host_project    = var.host_project_id
   service_project = var.service_project_id
 }

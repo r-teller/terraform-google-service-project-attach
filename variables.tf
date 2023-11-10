@@ -8,6 +8,12 @@ variable "service_project_id" {
   type        = string
 }
 
+variable "attach_service_project" {
+  description = "Specifies if the service project should be attached to the host project. If the service project is already attached and this module is just used to grant permissions then this should be set to false"
+  type        = bool
+  default     = true
+}
+
 ## Not currently used but may be introduced in the future
 # variable "grant_services_loadbalancer_admin_role" {
 #   type    = bool
