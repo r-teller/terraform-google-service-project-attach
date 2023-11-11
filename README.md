@@ -35,6 +35,16 @@ host_project_id     = "my-host-project"
 service_project_id  = "your-service-project"
 ```
 
+### Grant Service Projects IAM permissions without Service Project Attach
+If you have already gone through the level of effort required to attach multiple service projects to one or more host projects you can set `attach_service_project = false` and this module will still handle granting the required IAM permissions without attaching the specified service project to the host project
+
+```
+## terraform.tfvars
+host_project_id        = "my-host-project"
+service_project_id     = "your-service-project"
+attach_service_project = false
+```
+
 ## Allowed Subnetworks
 The allowed_subnetworks variable is used to determine if "roles/compute.networkUser" should be restricted to a specific set of subnetworks or all subnetworks should be allowed
   - if allowed_subnetworks = null then "roles/compute.networkUser" will have access to all subnetworks
